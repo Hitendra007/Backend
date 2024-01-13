@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import bcrypt from 'bcrypt'
 const userSchema = new Schema({
     username: {
         type: String,
@@ -28,7 +29,6 @@ const userSchema = new Schema({
     },
     coverImage: {
         type: String,
-        required: true,
     },
     watchHistroy: [
         {
