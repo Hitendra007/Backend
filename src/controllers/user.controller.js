@@ -4,6 +4,7 @@ import { User } from '../models/user.model.js'
 import { uploadOnCloudinary } from '../utils/cloudinary.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import jwt from 'jsonwebtoken'
+import mongoose from 'mongoose'
 import { deleteFromCloudinary } from '../utils/cloudinary.js'
 const generateAccessAndRefereshTokens = async (userId) => {
     try {
@@ -147,11 +148,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         if (!incomingRefreshToken) {
             throw new ApiError(401, "unauthorized request")
         }
+        // console.log(incomingRefreshToken)
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
-        const user = await User.find(decodedToken?._id)
+        let _id = decodedToken._id
+        const user = await User.findById({_id})
         if (!user) {
             throw new ApiError(401, "invalid refresh token !!")
         }
+        // console.log(user.refreshToken,user)
         if (incomingRefreshToken != user?.refreshToken) {
             throw new ApiError(401, 'Refresh token is expired or used')
         }
@@ -170,8 +174,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const changeUserPassword = asyncHandler(async (req, res) => {
     const { oldPassword, newPassword } = req.body
+    // console.log(oldPassword,newPassword,'gkhgk')
     const user_id = req.user?._id
     const user = await User.findById(user_id)
+    console.log(user)
     const isPasswordCorrect = await user.isPasswrordCorrect(oldPassword)
     if (!isPasswordCorrect) {
         throw new ApiError(400, 'Invalid old password')
@@ -210,7 +216,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     }
     const person = await User.findById(req.user?._id);
     const prevUrl = person.avatar;
-    const user = await User.findById(req.user?._id, {
+    const user = await User.findByIdAndUpdate(req.user?._id, {
         $set: {
             avatar: avatar.url
         }
@@ -228,12 +234,12 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
     }
     const coverImage = await uploadOnCloudinary(coverLocalPath)
-    if (!avatar.url) {
+    if (!coverImage.url) {
         throw new ApiError(400, 'Error while updating cover image')
     }
     const person = await User.findById(req.user?._id);
-    const prevUrl = person.avatar;
-    const user = await User.findById(req.user?._id, {
+    const prevUrl = person.coverImage;
+    const user = await User.findByIdAndUpdate(req.user?._id, {
         $set: {
             coverImage: coverImage.url
         }
@@ -369,4 +375,6 @@ export {
     updateUserCoverImage,
     getUserChannelProfile,
     getWatchHistory,
+    changeUserPassword,
+    updateAccountDetails,
 }
