@@ -151,7 +151,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         // console.log(incomingRefreshToken)
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
         let _id = decodedToken._id
-        const user = await User.findById({_id})
+        const user = await User.findById({ _id })
         if (!user) {
             throw new ApiError(401, "invalid refresh token !!")
         }
@@ -360,7 +360,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
 
     ])
     return res.status(200)
-    .json(new ApiResponse(200,user[0].watchHistory,'watch history successfully fetched !!'))
+        .json(new ApiResponse(200, user[0].watchHistory, 'watch history successfully fetched !!'))
 })
 
 
