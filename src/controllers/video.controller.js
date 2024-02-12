@@ -93,32 +93,28 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 // Update a video
 const updateVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params;
-    const { title, description } = req.body;
-    const thumbnail = req.file.path;
-
+    const { videoId } = req.params
+    const { title, description } = req.body
+    const thumbnail = req.file.path
     if (!title || !description) {
-        throw new ApiError(401, 'title and description and thumbnail required !!');
+        throw new ApiError(401, 'title and description and thumbnail required !!')
     }
-
-    const video = await Video.findById(videoId);
-
+    const video = await Video.findById(videoId)
     if (!video) {
-        throw new ApiError(404, 'video not found !!');
+        throw new ApiError(404, 'video not found !!')
     }
 
-    const thumbnailUpload = await uploadOnCloudinary(thumbnail);
-
-    if (!thumbnailUpload) {
-        throw new ApiError(500, 'thumbnail upload failed !!');
+    const thumbnailupload = await uploadOnCloudinary(thumbnail)
+    if (!thumbnailupload) {
+        throw new ApiError(500, 'thumbnail upload failed !!')
     }
 
-    video.title = title;
-    video.description = description;
-    video.thumbnail = thumbnailUpload?.url;
+    video.title = title
+    video.description = description
+    video.thumbnail = thumbnailupload?.url
     await video.save();
-    res.status(200).json(new ApiResponse(200, video, 'video updated successfully !!'));
-});
+    res.status(200).json(new ApiResponse(200, video, 'video updated successfully !!'))
+})
 
 // Delete a video
 const deleteVideo = asyncHandler(async (req, res) => {
