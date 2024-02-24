@@ -1,4 +1,4 @@
-Certainly! Below is a basic structure for your GitHub markdown (md) file for the MegaBackend project:
+
 
 # MegaBackend Project
 
@@ -50,5 +50,7 @@ This project serves as an exploration and learning experience in backend develop
 ## Learning Focus
 MegaBackend was developed with the primary goal of gaining hands-on experience in building a production-grade backend application. The project encompassed various aspects of backend development, including user authentication, data management, security practices, and integrating external services. The application follows best practices and emphasizes creating a scalable and maintainable backend infrastructure.
 
-```
 
+# Instructor 
+- Hitesh Chaudhary (Chai aur Code)
+> Special Thanks to Hitesh Chaudhary Sir for teaching Backend at this level of clearity.
