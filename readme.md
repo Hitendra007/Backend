@@ -53,4 +53,4 @@ MegaBackend was developed with the primary goal of gaining hands-on experience i
 
 # Instructor 
 - Hitesh Chaudhary (Chai aur Code)
-> Special Thanks to Hitesh Chaudhary Sir for teaching Backend at this level of clearity.
+> Special Thanks to Hitesh Chaudhary Sir for teaching Backend at this level of clarity.
