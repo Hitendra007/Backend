@@ -9,8 +9,9 @@ import mongoose from 'mongoose';
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
 
-    if (!userId) {
-        throw new ApiError(401, 'Send userId');
+    // Validate userId
+    if (!userId || !mongoose.isValidObjectId(userId)) {
+        throw new ApiError(401, 'Invalid userId');
     }
 
     const options = {
@@ -44,16 +45,18 @@ const publishAVideo = asyncHandler(async (req, res) => {
     let videoFilePath = "";
     let thumbnailPath = "";
 
+    // Validate user input
+    if (!title || !description || !userId) {
+        throw new ApiError(401, "Didn't get userId or title or description");
+    }
+
+    // Validate and retrieve file paths
     if (req.files && Array.isArray(req.files.videoFile) && req.files.videoFile.length > 0) {
         videoFilePath = req.files.videoFile[0].path;
     }
 
     if (req.files && Array.isArray(req.files.thumbnail) && req.files.thumbnail.length > 0) {
         thumbnailPath = req.files.thumbnail[0].path;
-    }
-
-    if (!title || !description || !userId || !videoFilePath || !thumbnailPath) {
-        throw new ApiError(401, "Didn't get userId or title or description or videoFilePath or thumbnailPath");
     }
 
     if (videoFilePath === "") {
@@ -83,8 +86,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
 
-    if (!videoId) {
-        throw new ApiError(401, 'videoId required !!');
+    // Validate videoId
+    if (!videoId || !mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(401, 'Invalid videoId format');
     }
 
     const video = await Video.findById(videoId);
@@ -93,35 +97,47 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 // Update a video
 const updateVideo = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
-    const { title, description } = req.body
-    const thumbnail = req.file.path
-    if (!title || !description) {
-        throw new ApiError(401, 'title and description and thumbnail required !!')
+    const { videoId } = req.params;
+    const { title, description } = req.body;
+    const thumbnail = req.file.path;
+
+    // Validate user input
+    if (!title || !description || !thumbnail) {
+        throw new ApiError(401, 'title and description and thumbnail required !!');
     }
-    const video = await Video.findById(videoId)
+
+    // Validate videoId
+    if (!videoId || !mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(401, 'Invalid videoId format');
+    }
+
+    const video = await Video.findById(videoId);
+
     if (!video) {
-        throw new ApiError(404, 'video not found !!')
+        throw new ApiError(404, 'video not found !!');
     }
 
-    const thumbnailupload = await uploadOnCloudinary(thumbnail)
+    const thumbnailupload = await uploadOnCloudinary(thumbnail);
+
     if (!thumbnailupload) {
-        throw new ApiError(500, 'thumbnail upload failed !!')
+        throw new ApiError(500, 'thumbnail upload failed !!');
     }
 
-    video.title = title
-    video.description = description
-    video.thumbnail = thumbnailupload?.url
+    video.title = title;
+    video.description = description;
+    video.thumbnail = thumbnailupload?.url;
     await video.save();
-    res.status(200).json(new ApiResponse(200, video, 'video updated successfully !!'))
-})
+
+    res.status(200).json(new ApiResponse(200, video, 'video updated successfully !!'));
+});
 
 // Delete a video
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
 
-    if (!videoId) {
-        throw new ApiError(401, 'videoId required !!');
+    // Validate videoId
+    if (!videoId || !mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(401, 'Invalid videoId format');
     }
 
     const deletedVideo = await Video.findByIdAndDelete(videoId);

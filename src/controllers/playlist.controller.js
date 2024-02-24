@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
+const isValidObjectId = mongoose.isValidObjectId;
 
 const createPlaylist = asyncHandler(async (req, res) => {
     const { name, description } = req.body;
@@ -33,6 +34,11 @@ const createPlaylist = asyncHandler(async (req, res) => {
 const getUserPlaylists = asyncHandler(async (req, res) => {
     const { userId } = req.params;
 
+    // Validate userId
+    if (!isValidObjectId(userId)) {
+        throw new ApiError(400, 'Invalid userId format');
+    }
+
     // Find playlists by owner ID
     const playlists = await Playlist.find({
         owner: new mongoose.Types.ObjectId(userId)
@@ -50,9 +56,9 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 const getPlaylistById = asyncHandler(async (req, res) => {
     const { playlistId } = req.params;
 
-    // Validate input parameter
-    if (!playlistId) {
-        throw new ApiError(401, 'PlaylistId required !!');
+    // Validate playlistId
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, 'Invalid playlistId format');
     }
 
     // Find playlist by ID
@@ -65,12 +71,26 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
     const { playlistId, videoId } = req.params;
 
+    // Validate playlistId and videoId
+    if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
+        throw new ApiError(400, 'Invalid playlistId or videoId format');
+    }
+
     // Find the playlist by ID
     const playlist = await Playlist.findById(playlistId);
 
     // Handle playlist not found
     if (!playlist) {
         throw new ApiError(500, 'Playlist not found !!!');
+    }
+
+    // Check if the video already exists in the playlist
+    const isVideoAlreadyInPlaylist = playlist.videos.some((existingVideo) =>
+        existingVideo.equals(videoId)
+    );
+
+    if (isVideoAlreadyInPlaylist) {
+        throw new ApiError(400, 'Video is already present in the playlist.');
     }
 
     // Add video to the playlist
@@ -83,6 +103,11 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     const { playlistId, videoId } = req.params;
+
+    // Validate playlistId and videoId
+    if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
+        throw new ApiError(400, 'Invalid playlistId or videoId format');
+    }
 
     // Find the playlist by ID
     const playlist = await Playlist.findById(playlistId);
@@ -103,6 +128,11 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 const deletePlaylist = asyncHandler(async (req, res) => {
     const { playlistId } = req.params;
 
+    // Validate playlistId
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, 'Invalid playlistId format');
+    }
+
     // Delete the playlist by ID
     const playlist = await Playlist.findByIdAndDelete(playlistId);
 
@@ -118,6 +148,11 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 const updatePlaylist = asyncHandler(async (req, res) => {
     const { playlistId } = req.params;
     const { name, description } = req.body;
+
+    // Validate playlistId
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, 'Invalid playlistId format');
+    }
 
     // Update the playlist by ID
     const playlist = await Playlist.findByIdAndUpdate(
