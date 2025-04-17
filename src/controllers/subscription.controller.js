@@ -32,6 +32,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     }
 
     const subscribers = await Subscription.find({ channel: channel._id })
+    // const subscribers = await Subscription.find({channel:channelId})
     const totalSubscribers = subscribers.length;
 
     res.status(200).json(new ApiResponse(200, {subscribers,totalSubscribers}, 'Subscribers fetched !!'));
